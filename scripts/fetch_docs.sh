@@ -5,7 +5,7 @@
 
 set -e
 
-URL="https://docs.anthropic.com/en/docs/claude-code/hooks.md"
+URL="https://docs.claude.com/en/docs/claude-code/hooks.md"
 OUTPUT_DIR="docs"
 OUTPUT_FILE="$OUTPUT_DIR/what-is-cc-hook.md"
 

@@ -21,7 +21,6 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Utilities",
 ]
-dependencies = []
 
 [dependency-groups]
 dev = [

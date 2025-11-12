@@ -27,7 +27,7 @@ class SessionEndContext(BaseHookContext):
 
     def _validate_session_end_fields(self) -> None:
         """Validate SessionEnd-specific fields."""
-        required_fields = ["reason"]
+        required_fields = ["reason", "cwd"]
         for field in required_fields:
             if field not in self._input_data:
                 self._missing_fields.append(field)
@@ -45,6 +45,15 @@ class SessionEndContext(BaseHookContext):
             SessionEndReason: One of 'clear', 'logout', 'prompt_input_exit', or 'other'
         """
         return str(self._input_data["reason"])  # type: ignore
+
+    @property
+    def cwd(self) -> str:
+        """Get the current working directory.
+
+        Returns:
+            str: Current working directory when the hook was invoked
+        """
+        return str(self._input_data["cwd"])
 
     @property
     def output(self) -> "SessionEndOutput":

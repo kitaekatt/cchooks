@@ -59,6 +59,22 @@ class TestSessionStartContext:
         assert context.session_id == "test-session-789"
         assert context.source == "clear"
 
+    def test_valid_context_creation_compact(self):
+        """Test creating context with compact source."""
+        data = {
+            "hook_event_name": "SessionStart",
+            "session_id": "test-session-compact",
+            "transcript_path": "/tmp/transcript.json",
+            "source": "compact",
+        }
+
+        context = SessionStartContext(data)
+
+        assert context.hook_event_name == "SessionStart"
+        assert context.session_id == "test-session-compact"
+        assert context.transcript_path == "/tmp/transcript.json"
+        assert context.source == "compact"
+
     def test_context_properties(self):
         """Test that all context properties are accessible."""
         data = {
@@ -75,7 +91,7 @@ class TestSessionStartContext:
 
     def test_context_with_different_sources(self):
         """Test context creation with different session start sources."""
-        sources = ["startup", "resume", "clear"]
+        sources = ["startup", "resume", "clear", "compact"]
 
         for source in sources:
             data = {
@@ -230,6 +246,27 @@ class TestSessionStartOutput:
         with patch("sys.exit") as mock_exit:
             context.output.exit_success("Session context loaded")
             mock_exit.assert_called_once_with(0)
+
+    def test_continue_json_output_no_stop_reason(self):
+        """Test that continue=true JSON output doesn't include stopReason field."""
+        data = {
+            "hook_event_name": "SessionStart",
+            "session_id": "test-123",
+            "transcript_path": "/tmp/transcript.json",
+            "source": "startup",
+        }
+
+        context = SessionStartContext(data)
+
+        with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
+            context.output.add_context("Test context")
+
+            output = mock_stdout.getvalue().strip()
+            result = json.loads(output)
+
+            assert result["continue"] is True
+            # When continue=true, stopReason should NOT be included
+            assert "stopReason" not in result
 
     def test_exit_non_block(self):
         """Test exit_non_block method."""

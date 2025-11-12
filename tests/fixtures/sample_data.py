@@ -229,6 +229,7 @@ def get_invalid_samples():
         ("session_start_invalid_source", INVALID_SESSION_START_INVALID_SOURCE),
         ("session_end_missing_reason", INVALID_SESSION_END_MISSING_REASON),
         ("session_end_invalid_reason", INVALID_SESSION_END_INVALID_REASON),
+        ("session_end_missing_cwd", INVALID_SESSION_END_MISSING_CWD),
     ]
 
 
@@ -318,4 +319,11 @@ INVALID_SESSION_END_INVALID_REASON = {
     "transcript_path": "/Users/user/.claude/transcript_20240716_143022.json",
     "cwd": "/Users/user/project",
     "reason": "invalid_reason",
+}
+
+INVALID_SESSION_END_MISSING_CWD = {
+    "hook_event_name": "SessionEnd",
+    "session_id": "sess_abc123def456",
+    "transcript_path": "/Users/user/.claude/transcript_20240716_143022.json",
+    "reason": "clear",
 }

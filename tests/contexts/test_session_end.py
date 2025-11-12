@@ -16,6 +16,7 @@ from ..fixtures.sample_data import (
     SAMPLE_SESSION_END_OTHER,
     INVALID_SESSION_END_MISSING_REASON,
     INVALID_SESSION_END_INVALID_REASON,
+    INVALID_SESSION_END_MISSING_CWD,
 )
 
 
@@ -26,6 +27,7 @@ class TestSessionEndContext:
         """Test SessionEnd context creation with 'clear' reason."""
         context = SessionEndContext(SAMPLE_SESSION_END_CLEAR)
         assert context.reason == "clear"
+        assert context.cwd == "/Users/user/project"
         assert isinstance(context.output, SessionEndOutput)
 
     def test_valid_context_creation_logout(self):
@@ -51,6 +53,11 @@ class TestSessionEndContext:
         with pytest.raises(HookValidationError, match="Missing required SessionEnd fields: reason"):
             SessionEndContext(INVALID_SESSION_END_MISSING_REASON)
 
+    def test_missing_cwd_field(self):
+        """Test validation error when cwd field is missing."""
+        with pytest.raises(HookValidationError, match="Missing required SessionEnd fields: cwd"):
+            SessionEndContext(INVALID_SESSION_END_MISSING_CWD)
+
     def test_invalid_reason_field(self):
         """Test that invalid reason values are accepted (validation happens at type level)."""
         # The context accepts any string value for reason, type validation happens elsewhere
@@ -63,6 +70,25 @@ class TestSessionEndContext:
         reason = context.reason
         assert isinstance(reason, str)
         assert reason in ["clear", "logout", "prompt_input_exit", "other"]
+
+    def test_cwd_property_returns_correct_value(self):
+        """Test that cwd property returns the correct working directory."""
+        context = SessionEndContext(SAMPLE_SESSION_END_CLEAR)
+        assert context.cwd == "/Users/user/project"
+        assert isinstance(context.cwd, str)
+
+    def test_cwd_property_with_different_reasons(self):
+        """Test cwd property works with different session end reasons."""
+        samples = [
+            SAMPLE_SESSION_END_CLEAR,
+            SAMPLE_SESSION_END_LOGOUT,
+            SAMPLE_SESSION_END_PROMPT_INPUT_EXIT,
+            SAMPLE_SESSION_END_OTHER,
+        ]
+
+        for sample_data in samples:
+            context = SessionEndContext(sample_data)
+            assert context.cwd == "/Users/user/project"
 
     def test_all_reason_types(self):
         """Test all valid SessionEnd reason types."""

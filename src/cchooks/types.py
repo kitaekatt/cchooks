@@ -19,7 +19,7 @@ HookEventType = Literal[
 PreCompactTrigger = Literal["manual", "auto"]
 
 # Source types for SessionStart
-SessionStartSource = Literal["startup", "resume", "clear"]
+SessionStartSource = Literal["startup", "resume", "clear", "compact"]
 
 # Reason types for SessionEnd
 SessionEndReason = Literal["clear", "logout", "prompt_input_exit", "other"]
@@ -119,4 +119,4 @@ class SessionEndHookSpecificOutput(HookSpecificOutput):
 CompleteOutput = Dict[str, Any]
 CommonOutput = Dict[
     str, Any
-]  # continue, stopReason, suppressOutput, hookSpecificOutput
+]  # continue, stopReason, suppressOutput, systemMessage, hookSpecificOutput

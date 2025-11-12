@@ -10,7 +10,14 @@ from ..types import CompleteOutput, HookEventType, CommonOutput
 
 
 class BaseHookContext(ABC):
-    """Base class for all hook contexts."""
+    """Base class for all hook contexts.
+
+    Environment Variables Available to All Hooks:
+        CLAUDE_PROJECT_DIR: Absolute path to the project root directory
+        CLAUDE_CODE_REMOTE: "true" if running in remote web environment,
+                           empty/unset if running in local CLI environment
+        CLAUDE_PLUGIN_ROOT: Absolute path to the plugin directory (available for plugin hooks)
+    """
 
     def __init__(self, input_data: Dict[str, Any]) -> None:
         """Initialize the context with parsed input data."""
@@ -72,9 +79,8 @@ class BaseHookOutput(ABC):
         self, suppress_output: bool = False, system_message: Optional[str] = None
     ) -> CommonOutput:
         """Construct Json with continue is true"""
-        result = {
+        result: CommonOutput = {
             "continue": True,
-            "stopReason": "stopReason",
             "suppressOutput": suppress_output,
         }
         if system_message is not None:
@@ -88,7 +94,7 @@ class BaseHookOutput(ABC):
         system_message: Optional[str] = None,
     ) -> CommonOutput:
         """Construct Json with continue is false"""
-        result = {
+        result: CommonOutput = {
             "continue": False,
             "stopReason": stop_reason,
             "suppressOutput": suppress_output,

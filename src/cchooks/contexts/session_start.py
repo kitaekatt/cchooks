@@ -14,10 +14,18 @@ class SessionStartContext(BaseHookContext):
 
     Runs when Claude Code starts a new session or resumes an existing session.
     Useful for loading in development context like existing issues or recent
-    changes to your codebase.
+    changes to your codebase, installing dependencies, or setting up environment variables.
 
     SessionStart hooks cannot block execution - they can only add context
     or exit with errors.
+
+    Environment Variables:
+        CLAUDE_ENV_FILE: Path to a file where hooks can persist environment variables
+                        for subsequent bash commands during the session
+                        (only available for SessionStart hooks)
+        CLAUDE_PROJECT_DIR: Absolute path to the project root directory (available to all hooks)
+        CLAUDE_CODE_REMOTE: "true" if running in remote web environment, empty/unset if local CLI (available to all hooks)
+        CLAUDE_PLUGIN_ROOT: Absolute path to the plugin directory (available for plugin hooks)
     """
 
     def __init__(self, input_data: Dict[str, Any]) -> None:
@@ -46,7 +54,7 @@ class SessionStartContext(BaseHookContext):
         """Get the session start source.
 
         Returns:
-            SessionStartSource: One of 'startup', 'resume', or 'clear'
+            SessionStartSource: One of 'startup', 'resume', 'clear', or 'compact'
         """
         return str(self._input_data["source"])  # type: ignore
 
