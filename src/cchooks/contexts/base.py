@@ -47,6 +47,27 @@ class BaseHookContext(ABC):
         """Get the hook event name."""
         return str(self._input_data["hook_event_name"])  # type: ignore
 
+    @property
+    def claude_project_dir(self) -> Optional[str]:
+        """Get the Claude project directory from environment."""
+        import os
+
+        return os.environ.get("CLAUDE_PROJECT_DIR")
+
+    @property
+    def claude_code_remote(self) -> bool:
+        """Check if running in remote web environment."""
+        import os
+
+        return os.environ.get("CLAUDE_CODE_REMOTE") == "true"
+
+    @property
+    def claude_plugin_root(self) -> Optional[str]:
+        """Get the Claude plugin root directory from environment."""
+        import os
+
+        return os.environ.get("CLAUDE_PLUGIN_ROOT")
+
     @classmethod
     def from_stdin(cls, stdin: TextIO = sys.stdin) -> "BaseHookContext":
         """Create context from stdin JSON input."""

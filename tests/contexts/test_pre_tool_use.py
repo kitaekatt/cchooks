@@ -212,7 +212,10 @@ class TestPreToolUseOutput:
             assert result["continue"] is True
             assert result["hookSpecificOutput"]["hookEventName"] == "PreToolUse"
             assert result["hookSpecificOutput"]["permissionDecision"] == "allow"
-            assert result["hookSpecificOutput"]["permissionDecisionReason"] == "Safe read operation approved"
+            assert (
+                result["hookSpecificOutput"]["permissionDecisionReason"]
+                == "Safe read operation approved"
+            )
             assert "systemMessage" not in result
 
     def test_allow_with_system_message(self):
@@ -232,7 +235,7 @@ class TestPreToolUseOutput:
             context.output.allow(
                 "Safe read operation approved",
                 suppress_output=False,
-                system_message="This operation will read a file"
+                system_message="This operation will read a file",
             )
 
             output = mock_stdout.getvalue().strip()
@@ -241,7 +244,10 @@ class TestPreToolUseOutput:
             assert result["continue"] is True
             assert result["hookSpecificOutput"]["hookEventName"] == "PreToolUse"
             assert result["hookSpecificOutput"]["permissionDecision"] == "allow"
-            assert result["hookSpecificOutput"]["permissionDecisionReason"] == "Safe read operation approved"
+            assert (
+                result["hookSpecificOutput"]["permissionDecisionReason"]
+                == "Safe read operation approved"
+            )
             assert result["systemMessage"] == "This operation will read a file"
 
     def test_deny(self):
@@ -266,7 +272,10 @@ class TestPreToolUseOutput:
             assert result["continue"] is True
             assert result["hookSpecificOutput"]["hookEventName"] == "PreToolUse"
             assert result["hookSpecificOutput"]["permissionDecision"] == "deny"
-            assert result["hookSpecificOutput"]["permissionDecisionReason"] == "Potentially dangerous command blocked"
+            assert (
+                result["hookSpecificOutput"]["permissionDecisionReason"]
+                == "Potentially dangerous command blocked"
+            )
             assert "systemMessage" not in result
 
     def test_deny_with_system_message(self):
@@ -286,7 +295,7 @@ class TestPreToolUseOutput:
             context.output.deny(
                 "Potentially dangerous command blocked",
                 suppress_output=False,
-                system_message="⚠️ This command could delete files"
+                system_message="⚠️ This command could delete files",
             )
 
             output = mock_stdout.getvalue().strip()
@@ -295,7 +304,10 @@ class TestPreToolUseOutput:
             assert result["continue"] is True
             assert result["hookSpecificOutput"]["hookEventName"] == "PreToolUse"
             assert result["hookSpecificOutput"]["permissionDecision"] == "deny"
-            assert result["hookSpecificOutput"]["permissionDecisionReason"] == "Potentially dangerous command blocked"
+            assert (
+                result["hookSpecificOutput"]["permissionDecisionReason"]
+                == "Potentially dangerous command blocked"
+            )
             assert result["systemMessage"] == "⚠️ This command could delete files"
 
     def test_halt(self):
@@ -338,7 +350,7 @@ class TestPreToolUseOutput:
             context.output.halt(
                 "Security violation detected",
                 suppress_output=False,
-                system_message="🚨 Critical security alert: Attempted to write to system file"
+                system_message="🚨 Critical security alert: Attempted to write to system file",
             )
 
             output = mock_stdout.getvalue().strip()
@@ -346,7 +358,10 @@ class TestPreToolUseOutput:
 
             assert result["continue"] is False
             assert result["stopReason"] == "Security violation detected"
-            assert result["systemMessage"] == "🚨 Critical security alert: Attempted to write to system file"
+            assert (
+                result["systemMessage"]
+                == "🚨 Critical security alert: Attempted to write to system file"
+            )
 
     def test_ask(self):
         """Test ask method."""
@@ -370,7 +385,10 @@ class TestPreToolUseOutput:
             assert result["continue"] is True
             assert result["hookSpecificOutput"]["hookEventName"] == "PreToolUse"
             assert result["hookSpecificOutput"]["permissionDecision"] == "ask"
-            assert result["hookSpecificOutput"]["permissionDecisionReason"] == "Please confirm this read operation"
+            assert (
+                result["hookSpecificOutput"]["permissionDecisionReason"]
+                == "Please confirm this read operation"
+            )
             assert "systemMessage" not in result
 
     def test_ask_with_system_message(self):
@@ -390,7 +408,7 @@ class TestPreToolUseOutput:
             context.output.ask(
                 "Please confirm this read operation",
                 suppress_output=False,
-                system_message="ℹ️ This operation requires user confirmation"
+                system_message="ℹ️ This operation requires user confirmation",
             )
 
             output = mock_stdout.getvalue().strip()
@@ -399,8 +417,13 @@ class TestPreToolUseOutput:
             assert result["continue"] is True
             assert result["hookSpecificOutput"]["hookEventName"] == "PreToolUse"
             assert result["hookSpecificOutput"]["permissionDecision"] == "ask"
-            assert result["hookSpecificOutput"]["permissionDecisionReason"] == "Please confirm this read operation"
-            assert result["systemMessage"] == "ℹ️ This operation requires user confirmation"
+            assert (
+                result["hookSpecificOutput"]["permissionDecisionReason"]
+                == "Please confirm this read operation"
+            )
+            assert (
+                result["systemMessage"] == "ℹ️ This operation requires user confirmation"
+            )
 
 
 class TestPreToolUseRealWorldScenarios:
@@ -488,4 +511,124 @@ class TestPreToolUseRealWorldScenarios:
                 result = json.loads(output)
                 assert result["continue"] is True
                 assert result["hookSpecificOutput"]["permissionDecision"] == "deny"
-                assert "Dangerous command detected" in result["hookSpecificOutput"]["permissionDecisionReason"]
+                assert (
+                    "Dangerous command detected"
+                    in result["hookSpecificOutput"]["permissionDecisionReason"]
+                )
+
+    def test_allow_with_updated_input(self):
+        """Test allow with updated input parameters."""
+        data = {
+            "session_id": "test-123",
+            "transcript_path": "/tmp/transcript.json",
+            "cwd": "/home/user/project",
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Write",
+            "tool_input": {"file_path": "/tmp/test.txt", "content": "original content"},
+        }
+
+        context = PreToolUseContext(data)
+
+        with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
+            updated_input = {
+                "file_path": "/tmp/safer.txt",
+                "content": "modified content",
+            }
+            context.output.allow(
+                "File path updated for safety", updated_input=updated_input
+            )
+
+            output = mock_stdout.getvalue().strip()
+            result = json.loads(output)
+
+            assert result["continue"] is True
+            assert result["hookSpecificOutput"]["hookEventName"] == "PreToolUse"
+            assert result["hookSpecificOutput"]["permissionDecision"] == "allow"
+            assert result["hookSpecificOutput"]["updatedInput"] == updated_input
+
+    def test_deny_with_updated_input(self):
+        """Test deny with updated input parameters."""
+        data = {
+            "session_id": "test-123",
+            "transcript_path": "/tmp/transcript.json",
+            "cwd": "/home/user/project",
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Bash",
+            "tool_input": {"command": "rm -rf /", "description": "Dangerous command"},
+        }
+
+        context = PreToolUseContext(data)
+
+        with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
+            updated_input = {
+                "command": "rm -rf /tmp/test",
+                "description": "Safer command",
+            }
+            context.output.deny(
+                "Command modified for safety", updated_input=updated_input
+            )
+
+            output = mock_stdout.getvalue().strip()
+            result = json.loads(output)
+
+            assert result["continue"] is True
+            assert result["hookSpecificOutput"]["hookEventName"] == "PreToolUse"
+            assert result["hookSpecificOutput"]["permissionDecision"] == "deny"
+            assert result["hookSpecificOutput"]["updatedInput"] == updated_input
+
+    def test_ask_with_updated_input(self):
+        """Test ask with updated input parameters."""
+        data = {
+            "session_id": "test-123",
+            "transcript_path": "/tmp/transcript.json",
+            "cwd": "/home/user/project",
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Write",
+            "tool_input": {
+                "file_path": "/etc/config.txt",
+                "content": "sensitive config",
+            },
+        }
+
+        context = PreToolUseContext(data)
+
+        with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
+            updated_input = {
+                "file_path": "/tmp/config.txt",
+                "content": "sensitive config",
+            }
+            context.output.ask(
+                "Please confirm this sensitive operation", updated_input=updated_input
+            )
+
+            output = mock_stdout.getvalue().strip()
+            result = json.loads(output)
+
+            assert result["continue"] is True
+            assert result["hookSpecificOutput"]["hookEventName"] == "PreToolUse"
+            assert result["hookSpecificOutput"]["permissionDecision"] == "ask"
+            assert result["hookSpecificOutput"]["updatedInput"] == updated_input
+
+    def test_allow_without_updated_input(self):
+        """Test allow without updated input (backward compatibility)."""
+        data = {
+            "session_id": "test-123",
+            "transcript_path": "/tmp/transcript.json",
+            "cwd": "/home/user/project",
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Write",
+            "tool_input": {"file_path": "/tmp/test.txt", "content": "content"},
+        }
+
+        context = PreToolUseContext(data)
+
+        with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
+            context.output.allow("Safe operation approved")
+
+            output = mock_stdout.getvalue().strip()
+            result = json.loads(output)
+
+            assert result["continue"] is True
+            assert result["hookSpecificOutput"]["hookEventName"] == "PreToolUse"
+            assert result["hookSpecificOutput"]["permissionDecision"] == "allow"
+            assert "updatedInput" not in result["hookSpecificOutput"]

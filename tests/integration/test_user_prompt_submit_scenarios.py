@@ -424,4 +424,3 @@ class TestUserPromptSubmitIntegrationWorkflow:
 
         # In real usage, this would be printed to stdout
         assert context_info.startswith("Working directory: /home/user/python-api")
-

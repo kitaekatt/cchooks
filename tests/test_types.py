@@ -4,7 +4,7 @@ import pytest
 
 from cchooks.types import (
     HookEventType,
-#   ToolName,
+    #   ToolName,
     PreCompactTrigger,
     PreToolUsePermissionDecision,
     SessionStartSource,
@@ -36,23 +36,23 @@ class TestTypeLiterals:
             HookEventType.__args__  # Access to check it's a Literal
             assert value in HookEventType.__args__
 
-#     def test_tool_name_values(self):
-#         """Test all valid ToolName values."""
-#         valid_tools = [
-#             "Task",
-#             "Bash",
-#             "Glob",
-#             "Grep",
-#             "Read",
-#             "Edit",
-#             "MultiEdit",
-#             "Write",
-#             "WebFetch",
-#             "WebSearch",
-#         ]
-#
-#         for tool in valid_tools:
-#             assert tool in ToolName.__args__
+    #     def test_tool_name_values(self):
+    #         """Test all valid ToolName values."""
+    #         valid_tools = [
+    #             "Task",
+    #             "Bash",
+    #             "Glob",
+    #             "Grep",
+    #             "Read",
+    #             "Edit",
+    #             "MultiEdit",
+    #             "Write",
+    #             "WebFetch",
+    #             "WebSearch",
+    #         ]
+    #
+    #         for tool in valid_tools:
+    #             assert tool in ToolName.__args__
 
     def test_pre_compact_trigger_values(self):
         """Test all valid PreCompactTrigger values."""
@@ -90,12 +90,12 @@ class TestTypeValidation:
         """Test that invalid hook event types are rejected."""
         assert invalid_value not in HookEventType.__args__
 
-#     @pytest.mark.parametrize(
-#         "invalid_tool", ["invalid_tool", "", "bash", "BASH", "Git"]
-#     )
-#     def test_invalid_tool_name(self, invalid_tool):
-#         """Test that invalid tool names are rejected."""
-#         assert invalid_tool not in ToolName.__args__
+    #     @pytest.mark.parametrize(
+    #         "invalid_tool", ["invalid_tool", "", "bash", "BASH", "Git"]
+    #     )
+    #     def test_invalid_tool_name(self, invalid_tool):
+    #         """Test that invalid tool names are rejected."""
+    #         assert invalid_tool not in ToolName.__args__
 
     @pytest.mark.parametrize(
         "invalid_trigger", ["manual_auto", "", "MANUAL", "auto_manual"]
@@ -130,6 +130,7 @@ class TestTypeCompleteness:
         }
         actual_hooks = set(HookEventType.__args__)
         assert expected_hooks == actual_hooks
+
 
 #     def test_all_tools_present(self):
 #         """Test that all expected tools are defined."""

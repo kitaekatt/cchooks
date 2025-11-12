@@ -203,7 +203,7 @@ class TestPostToolUseOutput:
             context.output.challenge(
                 "Python file written, consider formatting",
                 suppress_output=False,
-                system_message="📝 Code quality suggestion: Consider formatting this Python file"
+                system_message="📝 Code quality suggestion: Consider formatting this Python file",
             )
 
             output = mock_stdout.getvalue().strip()
@@ -212,7 +212,10 @@ class TestPostToolUseOutput:
             assert result["continue"] is True
             assert result["decision"] == "block"
             assert result["reason"] == "Python file written, consider formatting"
-            assert result["systemMessage"] == "📝 Code quality suggestion: Consider formatting this Python file"
+            assert (
+                result["systemMessage"]
+                == "📝 Code quality suggestion: Consider formatting this Python file"
+            )
 
     def test_halt(self):
         """Test stop processing method."""
@@ -256,7 +259,7 @@ class TestPostToolUseOutput:
             context.output.halt(
                 "Security violation detected",
                 suppress_output=False,
-                system_message="🚨 Security breach detected: Operation halted"
+                system_message="🚨 Security breach detected: Operation halted",
             )
 
             output = mock_stdout.getvalue().strip()
@@ -264,7 +267,10 @@ class TestPostToolUseOutput:
 
             assert result["continue"] is False
             assert result["stopReason"] == "Security violation detected"
-            assert result["systemMessage"] == "🚨 Security breach detected: Operation halted"
+            assert (
+                result["systemMessage"]
+                == "🚨 Security breach detected: Operation halted"
+            )
 
     def test_accept(self):
         """Test continue direct method."""
@@ -307,7 +313,7 @@ class TestPostToolUseOutput:
         with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
             context.output.accept(
                 suppress_output=False,
-                system_message="✅ Operation completed successfully"
+                system_message="✅ Operation completed successfully",
             )
 
             output = mock_stdout.getvalue().strip()
@@ -354,13 +360,16 @@ class TestPostToolUseOutput:
 
         with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
             context.output.add_context("This is additional context for Claude")
-            
+
             output = mock_stdout.getvalue().strip()
             result = json.loads(output)
-            
+
             assert result["continue"] is True
             assert result["hookSpecificOutput"]["hookEventName"] == "PostToolUse"
-            assert result["hookSpecificOutput"]["additionalContext"] == "This is additional context for Claude"
+            assert (
+                result["hookSpecificOutput"]["additionalContext"]
+                == "This is additional context for Claude"
+            )
             assert "systemMessage" not in result
 
     def test_add_context_with_system_message(self):
@@ -381,16 +390,22 @@ class TestPostToolUseOutput:
             context.output.add_context(
                 "This is additional context for Claude",
                 suppress_output=False,
-                system_message="📋 Adding context information for better decision making"
+                system_message="📋 Adding context information for better decision making",
             )
-            
+
             output = mock_stdout.getvalue().strip()
             result = json.loads(output)
-            
+
             assert result["continue"] is True
             assert result["hookSpecificOutput"]["hookEventName"] == "PostToolUse"
-            assert result["hookSpecificOutput"]["additionalContext"] == "This is additional context for Claude"
-            assert result["systemMessage"] == "📋 Adding context information for better decision making"
+            assert (
+                result["hookSpecificOutput"]["additionalContext"]
+                == "This is additional context for Claude"
+            )
+            assert (
+                result["systemMessage"]
+                == "📋 Adding context information for better decision making"
+            )
 
     def test_add_context_with_suppress_output(self):
         """Test add_context method with suppress_output parameter."""
@@ -408,10 +423,10 @@ class TestPostToolUseOutput:
 
         with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
             context.output.add_context("Context", suppress_output=True)
-            
+
             output = mock_stdout.getvalue().strip()
             result = json.loads(output)
-            
+
             assert result["continue"] is True
             assert result["suppressOutput"] is True
             assert result["hookSpecificOutput"]["additionalContext"] == "Context"
@@ -432,10 +447,10 @@ class TestPostToolUseOutput:
 
         with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
             context.output.add_context("")
-            
+
             output = mock_stdout.getvalue().strip()
             result = json.loads(output)
-            
+
             assert result["continue"] is True
             assert result["hookSpecificOutput"]["additionalContext"] == ""
 
@@ -456,10 +471,10 @@ class TestPostToolUseOutput:
 
         with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
             context.output.add_context(long_context)
-            
+
             output = mock_stdout.getvalue().strip()
             result = json.loads(output)
-            
+
             assert result["continue"] is True
             assert result["hookSpecificOutput"]["additionalContext"] == long_context
 

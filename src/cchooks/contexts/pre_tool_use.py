@@ -60,6 +60,7 @@ class PreToolUseOutput(BaseHookOutput):
         reason: str = "",
         suppress_output: bool = False,
         system_message: Optional[str] = None,
+        updated_input: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Allow the tool execution using unified SpecificOutput format.
 
@@ -67,14 +68,16 @@ class PreToolUseOutput(BaseHookOutput):
             reason (str): Reason for allowing, shown to user
             suppress_output (bool): Hide stdout from transcript mode (default: False)
             system_message (Optional[str]): Optional warning message shown to the user (default: None)
+            updated_input (Optional[Dict[str, Any]]): Modified tool input parameters (default: None)
         """
         output = self._continue_flow(suppress_output, system_message)
-        output = self._with_specific_output(
-            output,
-            "PreToolUse",
-            permissionDecision="allow",
-            permissionDecisionReason=reason,
-        )
+        specific_output: Dict[str, Any] = {
+            "permissionDecision": "allow",
+            "permissionDecisionReason": reason,
+        }
+        if updated_input is not None:
+            specific_output["updatedInput"] = updated_input
+        output = self._with_specific_output(output, "PreToolUse", **specific_output)
         print(json.dumps(output), file=sys.stdout)
 
     def deny(
@@ -82,6 +85,7 @@ class PreToolUseOutput(BaseHookOutput):
         reason: str,
         suppress_output: bool = False,
         system_message: Optional[str] = None,
+        updated_input: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Deny the tool execution using unified SpecificOutput format.
 
@@ -89,14 +93,16 @@ class PreToolUseOutput(BaseHookOutput):
             reason (str): Reason for denying, shown to Claude for further reasoning
             suppress_output (bool): Hide stdout from transcript mode (default: False)
             system_message (Optional[str]): Optional warning message shown to the user (default: None)
+            updated_input (Optional[Dict[str, Any]]): Modified tool input parameters (default: None)
         """
         output = self._continue_flow(suppress_output, system_message)
-        output = self._with_specific_output(
-            output,
-            "PreToolUse",
-            permissionDecision="deny",
-            permissionDecisionReason=reason,
-        )
+        specific_output: Dict[str, Any] = {
+            "permissionDecision": "deny",
+            "permissionDecisionReason": reason,
+        }
+        if updated_input is not None:
+            specific_output["updatedInput"] = updated_input
+        output = self._with_specific_output(output, "PreToolUse", **specific_output)
         print(json.dumps(output), file=sys.stdout)
 
     def ask(
@@ -104,6 +110,7 @@ class PreToolUseOutput(BaseHookOutput):
         reason: str,
         suppress_output: bool = False,
         system_message: Optional[str] = None,
+        updated_input: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Ask user to confirm the tool call using unified SpecificOutput format.
 
@@ -111,14 +118,16 @@ class PreToolUseOutput(BaseHookOutput):
             reason (str): Reason for asking, shown to user
             suppress_output (bool): Hide stdout from transcript mode (default: False)
             system_message (Optional[str]): Optional warning message shown to the user (default: None)
+            updated_input (Optional[Dict[str, Any]]): Modified tool input parameters (default: None)
         """
         output = self._continue_flow(suppress_output, system_message)
-        output = self._with_specific_output(
-            output,
-            "PreToolUse",
-            permissionDecision="ask",
-            permissionDecisionReason=reason,
-        )
+        specific_output: Dict[str, Any] = {
+            "permissionDecision": "ask",
+            "permissionDecisionReason": reason,
+        }
+        if updated_input is not None:
+            specific_output["updatedInput"] = updated_input
+        output = self._with_specific_output(output, "PreToolUse", **specific_output)
         print(json.dumps(output), file=sys.stdout)
 
     def halt(

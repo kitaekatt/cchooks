@@ -152,7 +152,7 @@ class TestSubagentStopOutput:
             context.output.halt(
                 "Subagent completed all tasks",
                 suppress_output=False,
-                system_message="🤖 Subagent task completion: All objectives achieved"
+                system_message="🤖 Subagent task completion: All objectives achieved",
             )
 
             output = mock_stdout.getvalue().strip()
@@ -160,7 +160,10 @@ class TestSubagentStopOutput:
 
             assert result["continue"] is False
             assert result["stopReason"] == "Subagent completed all tasks"
-            assert result["systemMessage"] == "🤖 Subagent task completion: All objectives achieved"
+            assert (
+                result["systemMessage"]
+                == "🤖 Subagent task completion: All objectives achieved"
+            )
 
     def test_prevent(self):
         """Test continue block method."""
@@ -199,7 +202,7 @@ class TestSubagentStopOutput:
             context.output.prevent(
                 "Subagent has more work to do",
                 suppress_output=False,
-                system_message="🔄 Subagent continues: Additional tasks pending"
+                system_message="🔄 Subagent continues: Additional tasks pending",
             )
 
             output = mock_stdout.getvalue().strip()
@@ -208,7 +211,10 @@ class TestSubagentStopOutput:
             assert result["continue"] is True
             assert result["decision"] == "block"
             assert result["reason"] == "Subagent has more work to do"
-            assert result["systemMessage"] == "🔄 Subagent continues: Additional tasks pending"
+            assert (
+                result["systemMessage"]
+                == "🔄 Subagent continues: Additional tasks pending"
+            )
 
     def test_allow(self):
         """Test continue direct method."""
@@ -245,7 +251,7 @@ class TestSubagentStopOutput:
         with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
             context.output.allow(
                 suppress_output=False,
-                system_message="✅ Subagent stop approved: Task completion confirmed"
+                system_message="✅ Subagent stop approved: Task completion confirmed",
             )
 
             output = mock_stdout.getvalue().strip()
@@ -253,7 +259,10 @@ class TestSubagentStopOutput:
 
             assert result["continue"] is True
             assert "decision" not in result
-            assert result["systemMessage"] == "✅ Subagent stop approved: Task completion confirmed"
+            assert (
+                result["systemMessage"]
+                == "✅ Subagent stop approved: Task completion confirmed"
+            )
 
 
 class TestSubagentStopRealWorldScenarios:

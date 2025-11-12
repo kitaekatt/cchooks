@@ -267,7 +267,14 @@ class TestNotificationRealWorldScenarios:
             context = NotificationContext(data)
             assert any(
                 keyword in context.message.lower()
-                for keyword in ["auto", "backup", "update", "warning", "system", "cache"]
+                for keyword in [
+                    "auto",
+                    "backup",
+                    "update",
+                    "warning",
+                    "system",
+                    "cache",
+                ]
             )
 
     def test_empty_and_edge_case_messages(self):
@@ -327,3 +334,63 @@ class TestNotificationRealWorldScenarios:
             with patch("sys.exit") as mock_exit:
                 context.output.acknowledge("success")
                 mock_exit.assert_called_once_with(0)
+
+    def test_notification_with_type(self):
+        """Test notification with notification_type field."""
+        data = {
+            "hook_event_name": "Notification",
+            "session_id": "test-session-123",
+            "transcript_path": "/tmp/transcript.json",
+            "cwd": "/home/user/project",
+            "message": "Permission required for file modification",
+            "notification_type": "permission_prompt",
+        }
+
+        context = NotificationContext(data)
+
+        assert context.hook_event_name == "Notification"
+        assert context.session_id == "test-session-123"
+        assert context.transcript_path == "/tmp/transcript.json"
+        assert context.message == "Permission required for file modification"
+        assert context.notification_type == "permission_prompt"
+
+    def test_notification_without_type(self):
+        """Test notification without notification_type field (backward compatibility)."""
+        data = {
+            "hook_event_name": "Notification",
+            "session_id": "test-session-123",
+            "transcript_path": "/tmp/transcript.json",
+            "cwd": "/home/user/project",
+            "message": "Operation completed successfully",
+        }
+
+        context = NotificationContext(data)
+
+        assert context.hook_event_name == "Notification"
+        assert context.session_id == "test-session-123"
+        assert context.transcript_path == "/tmp/transcript.json"
+        assert context.message == "Operation completed successfully"
+        assert context.notification_type is None
+
+    def test_notification_types_variations(self):
+        """Test various notification types."""
+        notification_types = [
+            "permission_prompt",
+            "idle_prompt",
+            "auth_success",
+            "elicitation_dialog",
+            "custom_type",
+        ]
+
+        for notification_type in notification_types:
+            data = {
+                "hook_event_name": "Notification",
+                "session_id": "test-123",
+                "transcript_path": "/tmp/transcript.json",
+                "cwd": "/home/user/project",
+                "message": f"Test message for {notification_type}",
+                "notification_type": notification_type,
+            }
+
+            context = NotificationContext(data)
+            assert context.notification_type == notification_type

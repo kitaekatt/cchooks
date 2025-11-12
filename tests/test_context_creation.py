@@ -2,6 +2,7 @@
 
 import json
 from io import StringIO
+from unittest.mock import patch
 
 import pytest
 
@@ -268,3 +269,88 @@ class TestCreateContextIntegration:
         assert hasattr(context.output, "deny")
         assert hasattr(context.output, "ask")
         assert hasattr(context.output, "halt")
+
+
+class TestEnvironmentVariables:
+    """Test environment variable access in contexts."""
+
+    def test_claude_project_dir_access(self):
+        """Test CLAUDE_PROJECT_DIR environment variable access."""
+        test_input = StringIO(json.dumps(SAMPLE_PRE_TOOL_USE_WRITE))
+        context = create_context(test_input)
+
+        # Should return None when env var not set
+        assert context.claude_project_dir is None
+
+        # Test with env var set
+        with patch.dict("os.environ", {"CLAUDE_PROJECT_DIR": "/home/user/project"}):
+            test_input = StringIO(json.dumps(SAMPLE_PRE_TOOL_USE_WRITE))
+            context = create_context(test_input)
+            assert context.claude_project_dir == "/home/user/project"
+
+    def test_claude_code_remote_access(self):
+        """Test CLAUDE_CODE_REMOTE environment variable access."""
+        test_input = StringIO(json.dumps(SAMPLE_PRE_TOOL_USE_WRITE))
+        context = create_context(test_input)
+
+        # Should return False when env var not set
+        assert context.claude_code_remote is False
+
+        # Test with env var set to "true"
+        with patch.dict("os.environ", {"CLAUDE_CODE_REMOTE": "true"}):
+            test_input = StringIO(json.dumps(SAMPLE_PRE_TOOL_USE_WRITE))
+            context = create_context(test_input)
+            assert context.claude_code_remote is True
+
+        # Test with env var set to other value
+        with patch.dict("os.environ", {"CLAUDE_CODE_REMOTE": "false"}):
+            test_input = StringIO(json.dumps(SAMPLE_PRE_TOOL_USE_WRITE))
+            context = create_context(test_input)
+            assert context.claude_code_remote is False
+
+    def test_claude_plugin_root_access(self):
+        """Test CLAUDE_PLUGIN_ROOT environment variable access."""
+        test_input = StringIO(json.dumps(SAMPLE_PRE_TOOL_USE_WRITE))
+        context = create_context(test_input)
+
+        # Should return None when env var not set
+        assert context.claude_plugin_root is None
+
+        # Test with env var set
+        with patch.dict(
+            "os.environ", {"CLAUDE_PLUGIN_ROOT": "/home/user/.claude/plugins/my-plugin"}
+        ):
+            test_input = StringIO(json.dumps(SAMPLE_PRE_TOOL_USE_WRITE))
+            context = create_context(test_input)
+            assert context.claude_plugin_root == "/home/user/.claude/plugins/my-plugin"
+
+    def test_environment_variables_all_contexts(self):
+        """Test that all context types have access to environment variables."""
+        test_cases = [
+            (SAMPLE_PRE_TOOL_USE_WRITE, PreToolUseContext),
+            (SAMPLE_POST_TOOL_USE_SUCCESS, PostToolUseContext),
+            (SAMPLE_NOTIFICATION_WARNING, NotificationContext),
+            (SAMPLE_USER_PROMPT_SUBMIT_SIMPLE, UserPromptSubmitContext),
+            (SAMPLE_STOP_WITH_HOOK, StopContext),
+            (SAMPLE_SUBAGENT_STOP_WITH_HOOK, SubagentStopContext),
+            (SAMPLE_PRE_COMPACT_MANUAL, PreCompactContext),
+            (SAMPLE_SESSION_START_STARTUP, SessionStartContext),
+            (SAMPLE_SESSION_END_CLEAR, SessionEndContext),
+        ]
+
+        for sample_data, context_class in test_cases:
+            with patch.dict(
+                "os.environ",
+                {
+                    "CLAUDE_PROJECT_DIR": "/test/project",
+                    "CLAUDE_CODE_REMOTE": "true",
+                    "CLAUDE_PLUGIN_ROOT": "/test/plugin",
+                },
+            ):
+                test_input = StringIO(json.dumps(sample_data))
+                context = create_context(test_input)
+
+                assert isinstance(context, context_class)
+                assert context.claude_project_dir == "/test/project"
+                assert context.claude_code_remote is True
+                assert context.claude_plugin_root == "/test/plugin"

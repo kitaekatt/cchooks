@@ -37,6 +37,11 @@ class NotificationContext(BaseHookContext):
         return str(self._input_data["cwd"])
 
     @property
+    def notification_type(self) -> Optional[str]:
+        """Get the notification type if available."""
+        return self._input_data.get("notification_type")
+
+    @property
     def output(self) -> "NotificationOutput":
         """Get the Notification-specific output handler."""
         return NotificationOutput()

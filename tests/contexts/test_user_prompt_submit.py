@@ -187,7 +187,7 @@ class TestUserPromptSubmitOutput:
         with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
             output.allow(
                 suppress_output=False,
-                system_message="✅ User prompt submission approved"
+                system_message="✅ User prompt submission approved",
             )
             output_str = mock_stdout.getvalue().strip()
             output_json = json.loads(output_str)
@@ -234,7 +234,7 @@ class TestUserPromptSubmitOutput:
                 output.block(
                     "Prompt contains sensitive information",
                     suppress_output=False,
-                    system_message="🚫 Security alert: Sensitive content detected in prompt"
+                    system_message="🚫 Security alert: Sensitive content detected in prompt",
                 )
 
                 output_str = mock_stdout.getvalue().strip()
@@ -243,7 +243,10 @@ class TestUserPromptSubmitOutput:
                 assert output_json["continue"] is True
                 assert output_json["decision"] == "block"
                 assert output_json["reason"] == "Prompt contains sensitive information"
-                assert output_json["systemMessage"] == "🚫 Security alert: Sensitive content detected in prompt"
+                assert (
+                    output_json["systemMessage"]
+                    == "🚫 Security alert: Sensitive content detected in prompt"
+                )
                 mock_exit.assert_called_once_with(0)
 
     def test_block_with_suppress_output(self):
@@ -269,13 +272,18 @@ class TestUserPromptSubmitOutput:
 
         with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
             output.add_context("Additional context: User is a Python developer")
-            
+
             output_str = mock_stdout.getvalue().strip()
             output_json = json.loads(output_str)
-            
+
             assert output_json["continue"] is True
-            assert output_json["hookSpecificOutput"]["hookEventName"] == "UserPromptSubmit"
-            assert output_json["hookSpecificOutput"]["additionalContext"] == "Additional context: User is a Python developer"
+            assert (
+                output_json["hookSpecificOutput"]["hookEventName"] == "UserPromptSubmit"
+            )
+            assert (
+                output_json["hookSpecificOutput"]["additionalContext"]
+                == "Additional context: User is a Python developer"
+            )
             assert "systemMessage" not in output_json
 
     def test_add_context_with_system_message(self):
@@ -286,16 +294,24 @@ class TestUserPromptSubmitOutput:
             output.add_context(
                 "Additional context: User is a Python developer",
                 suppress_output=False,
-                system_message="📝 Adding user context: Python developer background"
+                system_message="📝 Adding user context: Python developer background",
             )
-            
+
             output_str = mock_stdout.getvalue().strip()
             output_json = json.loads(output_str)
-            
+
             assert output_json["continue"] is True
-            assert output_json["hookSpecificOutput"]["hookEventName"] == "UserPromptSubmit"
-            assert output_json["hookSpecificOutput"]["additionalContext"] == "Additional context: User is a Python developer"
-            assert output_json["systemMessage"] == "📝 Adding user context: Python developer background"
+            assert (
+                output_json["hookSpecificOutput"]["hookEventName"] == "UserPromptSubmit"
+            )
+            assert (
+                output_json["hookSpecificOutput"]["additionalContext"]
+                == "Additional context: User is a Python developer"
+            )
+            assert (
+                output_json["systemMessage"]
+                == "📝 Adding user context: Python developer background"
+            )
 
     def test_add_context_with_suppress_output(self):
         """Test add_context method with suppress_output=True."""
@@ -303,13 +319,16 @@ class TestUserPromptSubmitOutput:
 
         with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
             output.add_context("This should not appear", suppress_output=True)
-            
+
             output_str = mock_stdout.getvalue().strip()
             output_json = json.loads(output_str)
-            
+
             assert output_json["continue"] is True
             assert output_json["suppressOutput"] is True
-            assert output_json["hookSpecificOutput"]["additionalContext"] == "This should not appear"
+            assert (
+                output_json["hookSpecificOutput"]["additionalContext"]
+                == "This should not appear"
+            )
 
     def test_exit_success_method(self):
         """Test exit_success method."""
@@ -371,12 +390,14 @@ class TestUserPromptSubmitOutput:
             # Only the last context should be present in the final JSON
             output_str = mock_stdout.getvalue().strip()
             # Split by newlines to get separate JSON outputs
-            lines = output_str.split('\n')
+            lines = output_str.split("\n")
             assert len(lines) == 3
-            
+
             # Check the last context
             final_json = json.loads(lines[-1])
-            assert final_json["hookSpecificOutput"]["additionalContext"] == "Third context"
+            assert (
+                final_json["hookSpecificOutput"]["additionalContext"] == "Third context"
+            )
 
 
 class TestUserPromptSubmitRealWorldScenarios:

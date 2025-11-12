@@ -50,12 +50,16 @@ class TestSessionEndContext:
 
     def test_missing_reason_field(self):
         """Test validation error when reason field is missing."""
-        with pytest.raises(HookValidationError, match="Missing required SessionEnd fields: reason"):
+        with pytest.raises(
+            HookValidationError, match="Missing required SessionEnd fields: reason"
+        ):
             SessionEndContext(INVALID_SESSION_END_MISSING_REASON)
 
     def test_missing_cwd_field(self):
         """Test validation error when cwd field is missing."""
-        with pytest.raises(HookValidationError, match="Missing required SessionEnd fields: cwd"):
+        with pytest.raises(
+            HookValidationError, match="Missing required SessionEnd fields: cwd"
+        ):
             SessionEndContext(INVALID_SESSION_END_MISSING_CWD)
 
     def test_invalid_reason_field(self):
@@ -92,7 +96,12 @@ class TestSessionEndContext:
 
     def test_all_reason_types(self):
         """Test all valid SessionEnd reason types."""
-        reasons: list[SessionEndReason] = ["clear", "logout", "prompt_input_exit", "other"]
+        reasons: list[SessionEndReason] = [
+            "clear",
+            "logout",
+            "prompt_input_exit",
+            "other",
+        ]
         for reason in reasons:
             input_data = SAMPLE_SESSION_END_CLEAR.copy()
             input_data["reason"] = reason
@@ -108,7 +117,10 @@ class TestSessionEndContext:
         """Test that base context fields are properly inherited."""
         context = SessionEndContext(SAMPLE_SESSION_END_CLEAR)
         assert context.session_id == "sess_abc123def456"
-        assert context.transcript_path == "/Users/user/.claude/transcript_20240716_143022.json"
+        assert (
+            context.transcript_path
+            == "/Users/user/.claude/transcript_20240716_143022.json"
+        )
         assert context.hook_event_name == "SessionEnd"
 
 
@@ -191,7 +203,9 @@ class TestSessionEndOutput:
     def test_stop_flow_with_system_message(self):
         """Test stop flow JSON output with system message."""
         output = SessionEndOutput()
-        result = output._stop_flow("Session ended due to error", system_message="Warning: data loss possible")
+        result = output._stop_flow(
+            "Session ended due to error", system_message="Warning: data loss possible"
+        )
 
         assert result["continue"] is False
         assert result["stopReason"] == "Session ended due to error"
@@ -225,7 +239,9 @@ class TestSessionEndIntegration:
         assert hasattr(context.output, "exit_non_block")
         assert hasattr(context.output, "exit_block")
 
-    @pytest.mark.parametrize("reason", ["clear", "logout", "prompt_input_exit", "other"])
+    @pytest.mark.parametrize(
+        "reason", ["clear", "logout", "prompt_input_exit", "other"]
+    )
     def test_all_reason_types_parameterized(self, reason):
         """Test all SessionEnd reason types using parameterized test."""
         input_data = SAMPLE_SESSION_END_CLEAR.copy()

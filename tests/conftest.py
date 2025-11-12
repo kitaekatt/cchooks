@@ -119,4 +119,3 @@ def capture_stderr():
         return patch("sys.stderr", new_callable=StringIO)
 
     return _capture
-

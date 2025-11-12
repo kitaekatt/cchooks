@@ -27,13 +27,29 @@ SessionEndReason = Literal["clear", "logout", "prompt_input_exit", "other"]
 # Permission decision types for PreToolUse
 PreToolUsePermissionDecision = Literal["allow", "deny", "ask"]
 
+# Notification types
+NotificationType = Literal[
+    "permission_prompt",
+    "idle_prompt",
+    "auth_success",
+    "elicitation_dialog",
+]
+
+# Hook execution types
+HookExecutionType = Literal["command", "prompt"]
+
+# Prompt-based hook response schema
+PromptHookResponse = Dict[
+    str, Any
+]  # { decision: "approve" | "block", reason: str, continue?: bool, stopReason?: str, systemMessage?: str }
+
 # Common fields present in all hook inputs
 CommonInputFields = Dict[str, Any]  # session_id, transcript_path, hook_event_name
 
 # Hook-specific input types
 PreToolUseInput = Dict[str, Any]  # + tool_name, tool_input, cwd
 PostToolUseInput = Dict[str, Any]  # + tool_name, tool_input, tool_response, cwd
-NotificationInput = Dict[str, Any]  # + message, cwd
+NotificationInput = Dict[str, Any]  # + message, cwd, notification_type
 UserPromptSubmitInput = Dict[str, Any]  # + prompt, cwd
 StopInput = Dict[str, Any]  # + stop_hook_active
 SubagentStopInput = Dict[str, Any]  # + stop_hook_active
@@ -68,6 +84,7 @@ class PreToolUseHookSpecificOutput(HookSpecificOutput):
     hookEventName: Literal["PreToolUse"]
     permissionDecision: PreToolUsePermissionDecision
     permissionDecisionReason: str
+    updatedInput: Optional[Dict[str, Any]] = None
 
 
 class UserPromptSubmitHookSpecificOutput(HookSpecificOutput):

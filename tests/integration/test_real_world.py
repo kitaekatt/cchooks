@@ -99,7 +99,10 @@ class TestRealWorldSecurityScenarios:
                 output = mock_stdout.getvalue().strip()
                 result = json.loads(output)
                 assert result["continue"] is True
-                assert "Dangerous command" in result["hookSpecificOutput"]["permissionDecisionReason"]
+                assert (
+                    "Dangerous command"
+                    in result["hookSpecificOutput"]["permissionDecisionReason"]
+                )
 
 
 class TestRealWorldDevelopmentWorkflows:
@@ -517,7 +520,10 @@ Open Issues: 5 (3 bugs, 2 features)
             output = mock_stdout.getvalue().strip()
             result = json.loads(output)
             assert result["continue"] is True
-            assert "Web Application Framework" in result["hookSpecificOutput"]["additionalContext"]
+            assert (
+                "Web Application Framework"
+                in result["hookSpecificOutput"]["additionalContext"]
+            )
 
     def test_resume_session_context(self):
         """Test resuming session with previous context."""
@@ -558,7 +564,9 @@ Open Issues: 5 (3 bugs, 2 features)
 
         # Provide fresh context
         with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
-            fresh_context = "New session started. Current working directory: /home/user/project"
+            fresh_context = (
+                "New session started. Current working directory: /home/user/project"
+            )
             context.output.add_context(fresh_context)
 
             output = mock_stdout.getvalue().strip()
@@ -595,8 +603,12 @@ Open Pull Requests: 2
 
             output = mock_stdout.getvalue().strip()
             result = json.loads(output)
-            assert "Git Repository:" in result["hookSpecificOutput"]["additionalContext"]
-            assert "feature/user-auth" in result["hookSpecificOutput"]["additionalContext"]
+            assert (
+                "Git Repository:" in result["hookSpecificOutput"]["additionalContext"]
+            )
+            assert (
+                "feature/user-auth" in result["hookSpecificOutput"]["additionalContext"]
+            )
 
     def test_development_environment_context(self):
         """Test loading development environment context."""
@@ -627,7 +639,10 @@ Development Environment:
 
             output = mock_stdout.getvalue().strip()
             result = json.loads(output)
-            assert "Development Environment:" in result["hookSpecificOutput"]["additionalContext"]
+            assert (
+                "Development Environment:"
+                in result["hookSpecificOutput"]["additionalContext"]
+            )
             assert "Python: 3.12.0" in result["hookSpecificOutput"]["additionalContext"]
 
     def test_error_handling_session_start(self):
@@ -747,4 +762,7 @@ Development Environment:
                         output = mock_stdout.getvalue().strip()
                         result = json.loads(output)
                         assert result["continue"] is True
-                        assert result["hookSpecificOutput"]["hookEventName"] == "SessionStart"
+                        assert (
+                            result["hookSpecificOutput"]["hookEventName"]
+                            == "SessionStart"
+                        )

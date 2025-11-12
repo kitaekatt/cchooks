@@ -180,4 +180,3 @@ class TestExceptionChaining:
                 raise CCHooksError("New error")
 
         assert exc_info.value.__context__ is original_error
-

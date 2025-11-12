@@ -182,7 +182,10 @@ class TestSessionStartOutput:
 
             assert result["continue"] is True
             assert result["hookSpecificOutput"]["hookEventName"] == "SessionStart"
-            assert result["hookSpecificOutput"]["additionalContext"] == "Loading project context and recent changes"
+            assert (
+                result["hookSpecificOutput"]["additionalContext"]
+                == "Loading project context and recent changes"
+            )
             assert "systemMessage" not in result
 
     def test_add_context_with_system_message(self):
@@ -200,7 +203,7 @@ class TestSessionStartOutput:
             context.output.add_context(
                 "Loading project context and recent changes",
                 suppress_output=False,
-                system_message="🚀 Session initialized: Loading project environment"
+                system_message="🚀 Session initialized: Loading project environment",
             )
 
             output = mock_stdout.getvalue().strip()
@@ -208,8 +211,14 @@ class TestSessionStartOutput:
 
             assert result["continue"] is True
             assert result["hookSpecificOutput"]["hookEventName"] == "SessionStart"
-            assert result["hookSpecificOutput"]["additionalContext"] == "Loading project context and recent changes"
-            assert result["systemMessage"] == "🚀 Session initialized: Loading project environment"
+            assert (
+                result["hookSpecificOutput"]["additionalContext"]
+                == "Loading project context and recent changes"
+            )
+            assert (
+                result["systemMessage"]
+                == "🚀 Session initialized: Loading project environment"
+            )
 
     def test_add_context_with_suppress_output(self):
         """Test add_context method with suppress_output=True."""
@@ -223,14 +232,19 @@ class TestSessionStartOutput:
         context = SessionStartContext(data)
 
         with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
-            context.output.add_context("Resuming previous session context", suppress_output=True)
+            context.output.add_context(
+                "Resuming previous session context", suppress_output=True
+            )
 
             output = mock_stdout.getvalue().strip()
             result = json.loads(output)
 
             assert result["continue"] is True
             assert result["hookSpecificOutput"]["hookEventName"] == "SessionStart"
-            assert result["hookSpecificOutput"]["additionalContext"] == "Resuming previous session context"
+            assert (
+                result["hookSpecificOutput"]["additionalContext"]
+                == "Resuming previous session context"
+            )
 
     def test_exit_success(self):
         """Test exit_success method."""
@@ -360,7 +374,9 @@ Last commit: feat: Add JWT authentication
 
         # Test providing fresh context after clear
         with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
-            fresh_context = "Starting fresh session. Current working directory: /home/user/project"
+            fresh_context = (
+                "Starting fresh session. Current working directory: /home/user/project"
+            )
             context.output.add_context(fresh_context)
 
             output = mock_stdout.getvalue().strip()
@@ -393,7 +409,9 @@ Modified files: src/auth.py, tests/test_auth.py
 
             output = mock_stdout.getvalue().strip()
             result = json.loads(output)
-            assert "Git repository:" in result["hookSpecificOutput"]["additionalContext"]
+            assert (
+                "Git repository:" in result["hookSpecificOutput"]["additionalContext"]
+            )
 
     def test_load_development_environment(self):
         """Test loading development environment context."""
@@ -420,7 +438,10 @@ Development Environment:
 
             output = mock_stdout.getvalue().strip()
             result = json.loads(output)
-            assert "Development Environment:" in result["hookSpecificOutput"]["additionalContext"]
+            assert (
+                "Development Environment:"
+                in result["hookSpecificOutput"]["additionalContext"]
+            )
 
     def test_error_handling_context_loading(self):
         """Test error handling when context loading fails."""
@@ -455,4 +476,7 @@ Development Environment:
 
             output = mock_stdout.getvalue().strip()
             result = json.loads(output)
-            assert result["hookSpecificOutput"]["additionalContext"] == "Internal context data"
+            assert (
+                result["hookSpecificOutput"]["additionalContext"]
+                == "Internal context data"
+            )
