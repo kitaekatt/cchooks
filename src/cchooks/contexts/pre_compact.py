@@ -41,6 +41,16 @@ class PreCompactContext(BaseHookContext):
         """Get custom instructions for compaction."""
         return str(self._input_data["custom_instructions"])
 
+    def is_subagent(self) -> bool:
+        """Check if this hook is running in a sub-agent context.
+
+        Returns True if executed by a delegated Task, False if main Claude.
+        Enables proper authorization and skill isolation patterns.
+        """
+        from pathlib import Path
+        filename = Path(self.transcript_path).name
+        return filename.startswith('agent-')
+
     @property
     def output(self) -> "PreCompactOutput":
         """Get the PreCompact-specific output handler."""

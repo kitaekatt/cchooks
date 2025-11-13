@@ -41,6 +41,16 @@ class NotificationContext(BaseHookContext):
         """Get the notification type if available."""
         return self._input_data.get("notification_type")
 
+    def is_subagent(self) -> bool:
+        """Check if this hook is running in a sub-agent context.
+
+        Returns True if executed by a delegated Task, False if main Claude.
+        Enables proper authorization and skill isolation patterns.
+        """
+        from pathlib import Path
+        filename = Path(self.transcript_path).name
+        return filename.startswith('agent-')
+
     @property
     def output(self) -> "NotificationOutput":
         """Get the Notification-specific output handler."""

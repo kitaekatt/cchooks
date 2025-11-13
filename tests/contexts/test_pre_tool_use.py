@@ -632,3 +632,105 @@ class TestPreToolUseRealWorldScenarios:
             assert result["hookSpecificOutput"]["hookEventName"] == "PreToolUse"
             assert result["hookSpecificOutput"]["permissionDecision"] == "allow"
             assert "updatedInput" not in result["hookSpecificOutput"]
+
+
+class TestPreToolUseContextIsSubagent:
+    """Test is_subagent() method for detecting sub-agent context."""
+
+    def test_is_subagent_main_claude_context(self):
+        """Test is_subagent returns False for main Claude context."""
+        data = {
+            "hook_event_name": "PreToolUse",
+            "session_id": "session-abc123def456",
+            "transcript_path": "/Users/user/.claude/session-abc123def456.jsonl",
+            "cwd": "/home/user/project",
+            "tool_name": "Write",
+            "tool_input": {"file_path": "/tmp/test.txt", "content": "Hello World"},
+        }
+
+        context = PreToolUseContext(data)
+
+        assert context.is_subagent() is False
+
+    def test_is_subagent_subagent_context(self):
+        """Test is_subagent returns True for sub-agent context."""
+        data = {
+            "hook_event_name": "PreToolUse",
+            "session_id": "agent-xyz789uvw012",
+            "transcript_path": "/Users/user/.claude/agent-xyz789uvw012.jsonl",
+            "cwd": "/home/user/project",
+            "tool_name": "Write",
+            "tool_input": {"file_path": "/tmp/test.txt", "content": "Hello World"},
+        }
+
+        context = PreToolUseContext(data)
+
+        assert context.is_subagent() is True
+
+    def test_is_subagent_parallel_subagents(self):
+        """Test is_subagent correctly identifies multiple parallel sub-agents."""
+        agent_ids = [
+            "agent-001-backend",
+            "agent-002-frontend",
+            "agent-003-docs",
+            "agent-parallel-123",
+        ]
+
+        for agent_id in agent_ids:
+            data = {
+                "hook_event_name": "PreToolUse",
+                "session_id": agent_id,
+                "transcript_path": f"/Users/user/.claude/{agent_id}.jsonl",
+                "cwd": "/home/user/project",
+                "tool_name": "Write",
+                "tool_input": {"file_path": "/tmp/test.txt", "content": "content"},
+            }
+
+            context = PreToolUseContext(data)
+            assert context.is_subagent() is True, f"Failed for agent_id: {agent_id}"
+
+    def test_is_subagent_various_main_claude_paths(self):
+        """Test is_subagent returns False for various main Claude transcript paths."""
+        session_paths = [
+            "/home/user/.claude/session-abc123.jsonl",
+            "/Users/macuser/.claude/session-xyz789.jsonl",
+            "/root/.claude/session-main-001.jsonl",
+            "/tmp/session-test.jsonl",
+        ]
+
+        for path in session_paths:
+            data = {
+                "hook_event_name": "PreToolUse",
+                "session_id": "test-session",
+                "transcript_path": path,
+                "cwd": "/home/user/project",
+                "tool_name": "Write",
+                "tool_input": {"file_path": "/tmp/test.txt", "content": "content"},
+            }
+
+            context = PreToolUseContext(data)
+            assert context.is_subagent() is False, f"Failed for path: {path}"
+
+    def test_is_subagent_edge_cases(self):
+        """Test is_subagent with edge case filenames."""
+        # Filenames that contain 'agent' but don't start with 'agent-'
+        non_agent_paths = [
+            "/tmp/management-agent-123.jsonl",  # contains 'agent' in middle
+            "/tmp/my-agent.jsonl",  # doesn't start with 'agent-'
+            "/tmp/reagent-abc.jsonl",  # ends with similar pattern
+        ]
+
+        for path in non_agent_paths:
+            data = {
+                "hook_event_name": "PreToolUse",
+                "session_id": "test-session",
+                "transcript_path": path,
+                "cwd": "/home/user/project",
+                "tool_name": "Write",
+                "tool_input": {"file_path": "/tmp/test.txt", "content": "content"},
+            }
+
+            context = PreToolUseContext(data)
+            assert (
+                context.is_subagent() is False
+            ), f"Failed for non-agent path: {path}"
