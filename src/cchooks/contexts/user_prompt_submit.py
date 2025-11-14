@@ -43,10 +43,31 @@ class UserPromptSubmitContext(BaseHookContext):
 
         Returns True if executed by a delegated Task, False if main Claude.
         Enables proper authorization and skill isolation patterns.
+
+        Sub-agents are detected by checking if the transcript_path is in a
+        different project directory than the main Claude project.
         """
+        import os
         from pathlib import Path
-        filename = Path(self.transcript_path).name
-        return filename.startswith('agent-')
+
+        # Get the project directory containing this transcript
+        transcript_path = Path(self.transcript_path)
+        transcript_project_dir = transcript_path.parent.name
+
+        # Check CLAUDE_PROJECT_DIR environment variable which indicates the
+        # main project that is currently open in Claude Code
+        main_project_dir = os.environ.get("CLAUDE_PROJECT_DIR", "")
+
+        # Extract just the directory name from CLAUDE_PROJECT_DIR for comparison
+        # (it's an absolute path, we need just the directory name)
+        if main_project_dir:
+            main_project_name = Path(main_project_dir).name
+        else:
+            # Fallback: assume main Claude uses "-home-christina--claude" pattern
+            main_project_name = "-home-christina--claude"
+
+        # Sub-agent is when the transcript is in a different project directory
+        return transcript_project_dir != main_project_name
 
     @property
     def output(self) -> "UserPromptSubmitOutput":
