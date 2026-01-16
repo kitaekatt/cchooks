@@ -7,6 +7,7 @@ from .notification import NotificationContext, NotificationOutput
 from .user_prompt_submit import UserPromptSubmitContext, UserPromptSubmitOutput
 from .stop import StopContext, StopOutput
 from .subagent_stop import SubagentStopContext, SubagentStopOutput
+from .subagent_start import SubagentStartContext, SubagentStartOutput
 from .pre_compact import PreCompactContext, PreCompactOutput
 from .session_start import SessionStartContext, SessionStartOutput
 from .session_end import SessionEndContext, SessionEndOutput
@@ -26,6 +27,8 @@ __all__ = [
     "StopOutput",
     "SubagentStopContext",
     "SubagentStopOutput",
+    "SubagentStartContext",
+    "SubagentStartOutput",
     "PreCompactContext",
     "PreCompactOutput",
     "SessionStartContext",

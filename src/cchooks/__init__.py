@@ -22,6 +22,7 @@ Hook Types:
     - Notification: Processes notifications, no decision control
     - UserPromptSubmit: Runs before prompt processing, can block
     - Stop: Controls Claude stopping behavior
+    - SubagentStart: Runs when subagent spawns, can add context
     - SubagentStop: Controls subagent stopping behavior
     - PreCompact: Runs before transcript compaction
     - SessionStart: Runs when Claude Code starts or resumes sessions
@@ -48,6 +49,8 @@ from .contexts import (
     SessionStartOutput,
     StopContext,
     StopOutput,
+    SubagentStartContext,
+    SubagentStartOutput,
     SubagentStopContext,
     SubagentStopOutput,
     UserPromptSubmitContext,
@@ -79,6 +82,7 @@ HookContext = Union[
     NotificationContext,
     UserPromptSubmitContext,
     StopContext,
+    SubagentStartContext,
     SubagentStopContext,
     PreCompactContext,
     SessionStartContext,
@@ -92,6 +96,7 @@ _HOOK_TYPE_MAP: dict[str, type[HookContext]] = {
     "Notification": NotificationContext,
     "UserPromptSubmit": UserPromptSubmitContext,
     "Stop": StopContext,
+    "SubagentStart": SubagentStartContext,
     "SubagentStop": SubagentStopContext,
     "PreCompact": PreCompactContext,
     "SessionStart": SessionStartContext,
@@ -140,6 +145,8 @@ __all__ = [
     "UserPromptSubmitOutput",
     "StopContext",
     "StopOutput",
+    "SubagentStartContext",
+    "SubagentStartOutput",
     "SubagentStopContext",
     "SubagentStopOutput",
     "PreCompactContext",
