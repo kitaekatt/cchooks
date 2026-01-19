@@ -2,7 +2,7 @@
 
 import json
 import sys
-from typing import Any, Dict, NoReturn, Optional
+from typing import Any, Dict, NoReturn, Optional, Union
 
 from .base import BaseHookContext, BaseHookOutput
 from ..exceptions import HookValidationError
@@ -32,8 +32,8 @@ class PostToolUseContext(BaseHookContext):
         if not isinstance(self._input_data["tool_input"], dict):
             raise HookValidationError("tool_input must be a JSON object")
 
-        if not isinstance(self._input_data["tool_response"], dict):
-            raise HookValidationError("tool_response must be a JSON object")
+        # tool_response can be any JSON value (dict, string, list, null, etc.)
+        # MCP tools often return strings, not objects
 
     @property
     def tool_name(self) -> str:
@@ -46,9 +46,34 @@ class PostToolUseContext(BaseHookContext):
         return dict(self._input_data["tool_input"])
 
     @property
-    def tool_response(self) -> Dict[str, Any]:
-        """Get the tool response data."""
-        return dict(self._input_data["tool_response"])
+    def tool_response(self) -> Union[Dict[str, Any], str, list, None]:
+        """Get the tool response data.
+
+        Returns the raw tool response which can be:
+        - A dict for most built-in tools
+        - A string for some MCP tools
+        - A list or None in edge cases
+        """
+        return self._input_data["tool_response"]
+
+    @property
+    def tool_response_as_dict(self) -> Dict[str, Any]:
+        """Get tool response as a dict, wrapping non-dict values.
+
+        For hooks that need dict access, this wraps non-dict responses:
+        - string -> {"output": string}
+        - list -> {"items": list}
+        - None -> {}
+        """
+        response = self._input_data["tool_response"]
+        if isinstance(response, dict):
+            return response
+        elif isinstance(response, str):
+            return {"output": response}
+        elif isinstance(response, list):
+            return {"items": response}
+        else:
+            return {}
 
     @property
     def cwd(self) -> str:

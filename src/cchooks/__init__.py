@@ -32,6 +32,7 @@ Hook Types:
 import sys
 from typing import TextIO, Union
 
+from .master_switch import are_hooks_enabled, exit_if_hooks_disabled
 from .contexts import (
     BaseHookContext,
     BaseHookOutput,
@@ -63,9 +64,12 @@ from .exceptions import (
     ParseError,
 )
 from .output_utils import (
+    clear_hook_errors,
     exit_block,
     exit_non_block,
     exit_success,
+    format_errors_for_display,
+    get_hook_errors,
     handle_context_error,
     handle_invalid_hook_type,
     handle_parse_error,
@@ -74,6 +78,7 @@ from .output_utils import (
     safe_create_context,
 )
 from .utils import read_json_from_stdin, validate_required_fields
+from .decorators import safe_hook_wrapper
 
 # Type alias for all possible context types
 HookContext = Union[
@@ -110,6 +115,12 @@ def create_context(stdin: TextIO = sys.stdin) -> HookContext:
     Reads JSON from stdin and automatically detects the hook type based on
     the 'hook_event_name' field, returning the appropriate specialized context.
 
+    Note:
+        If hooks are globally disabled via the master switch in
+        ~/.claude/hooks/config/hook-categories.yaml (hooks_enabled: false),
+        this function will exit early with code 0, silently allowing the
+        operation without executing any hook logic.
+
     Returns:
         Context object specific to the detected hook type
 
@@ -118,6 +129,9 @@ def create_context(stdin: TextIO = sys.stdin) -> HookContext:
         InvalidHookTypeError: If hook_event_name is not recognized
         HookValidationError: If required fields are missing
     """
+    # Check master switch first - exit early if hooks are disabled
+    exit_if_hooks_disabled()
+
     input_data = read_json_from_stdin(stdin)
 
     hook_event_name = input_data.get("hook_event_name")
@@ -176,6 +190,15 @@ __all__ = [
     "handle_invalid_hook_type",
     "handle_context_error",
     "safe_create_context",
+    # Error log reading
+    "get_hook_errors",
+    "format_errors_for_display",
+    "clear_hook_errors",
     # Type aliases
     "HookContext",
+    # Master switch
+    "are_hooks_enabled",
+    "exit_if_hooks_disabled",
+    # Decorators
+    "safe_hook_wrapper",
 ]
