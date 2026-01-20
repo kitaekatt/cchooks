@@ -98,5 +98,5 @@ if __name__ == "__main__":
 
         # CRITICAL: Output valid JSON to prevent "hook error" message
         # Change to "block" and exit(2) for security-critical hooks
-        print(json.dumps({"decision": "allow"}))
+        print(json.dumps({"decision": "approve"}))
         sys.exit(0)
