@@ -1,6 +1,6 @@
 [project]
 name = "cchooks"
-version = "0.1.6"
+version = "0.1.7"
 description = "A Python utility module for claude-code hook development"
 readme = "README.md"
 requires-python = ">=3.8"

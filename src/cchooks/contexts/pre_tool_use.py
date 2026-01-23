@@ -126,7 +126,7 @@ class PreToolUseOutput(BaseHookOutput):
             system_message (Optional[str]): Optional warning message shown to the user (default: None)
             updated_input (Optional[Dict[str, Any]]): Modified tool input parameters (default: None)
         """
-        output = self._continue_flow(suppress_output, system_message)
+        output = self._stop_flow(reason, suppress_output, system_message)
         specific_output: Dict[str, Any] = {
             "permissionDecision": "deny",
             "permissionDecisionReason": reason,
